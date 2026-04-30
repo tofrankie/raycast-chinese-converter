@@ -1,0 +1,143 @@
+{
+  "$schema": "https://www.raycast.com/schemas/extension.json",
+  "name": "chinese-converter",
+  "title": "Chinese Converter",
+  "description": "Convert number input into Chinese formatted text, including uppercase RMB amount text.",
+  "icon": "icon.png",
+  "author": "tofrankie",
+  "homepage": "https://github.com/tofrankie/raycast-chinese-converter",
+  "bugs": {
+    "url": "https://github.com/tofrankie/raycast-chinese-converter/issues",
+    "email": "1426203851@qq.com"
+  },
+  "platforms": [
+    "macOS",
+    "Windows"
+  ],
+  "categories": [
+    "Other"
+  ],
+  "license": "MIT",
+  "scripts": {
+    "dev": "ray develop",
+    "build": "ray build",
+    "lint": "ray lint",
+    "fix-lint": "ray lint --fix",
+    "publish": "ray publish",
+    "verify:nzh": "node scripts/verify-nzh.mjs",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@raycast/api": "^1.104.15",
+    "@raycast/utils": "^1.17.0",
+    "nzh": "^1.0.14"
+  },
+  "devDependencies": {
+    "@raycast/eslint-config": "^2.0.4",
+    "@types/node": "22.19.17",
+    "@types/react": "19.0.10",
+    "eslint": "^9.22.0",
+    "prettier": "^3.5.3",
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.5"
+  },
+  "commands": [
+    {
+      "name": "convert-to-rmb",
+      "title": "Convert to RMB",
+      "description": "Convert number input to uppercase Chinese RMB text.",
+      "mode": "view",
+      "preferences": [
+        {
+          "name": "decimalPlaces",
+          "title": "Decimal Places",
+          "description": "For 1.2345 with 2 digits, keep 1.23 before conversion.",
+          "type": "dropdown",
+          "required": false,
+          "default": "2",
+          "data": [
+            {
+              "title": "0",
+              "value": "0"
+            },
+            {
+              "title": "1",
+              "value": "1"
+            },
+            {
+              "title": "2",
+              "value": "2"
+            },
+            {
+              "title": "3",
+              "value": "3"
+            },
+            {
+              "title": "4",
+              "value": "4"
+            },
+            {
+              "title": "5",
+              "value": "5"
+            }
+          ]
+        },
+        {
+          "name": "roundingMode",
+          "title": "Extra Decimal Handling",
+          "description": "For 1.235 with 2 digits, Round gives 1.24 and Truncate gives 1.23.",
+          "type": "dropdown",
+          "required": false,
+          "default": "round",
+          "data": [
+            {
+              "title": "Round",
+              "value": "round"
+            },
+            {
+              "title": "Truncate",
+              "value": "truncate"
+            }
+          ]
+        },
+        {
+          "name": "unOmitYuan",
+          "title": "Always Show Yuan (元)",
+          "description": "For number input like 0.32, show 零元叁角贰分 instead of 叁角贰分.",
+          "type": "checkbox",
+          "required": false,
+          "default": false,
+          "label": "Always Show Yuan (元)"
+        },
+        {
+          "name": "forceZheng",
+          "title": "Append 整 Automatically",
+          "description": "For number input like 1, show 壹元整 instead of 壹元.",
+          "type": "checkbox",
+          "required": false,
+          "default": true,
+          "label": "Append 整 Automatically"
+        },
+        {
+          "name": "moneyPrefix",
+          "title": "Custom Prefix Text",
+          "description": "For number input like 0.32 with prefix 人民币, show 人民币零元叁角贰分 instead of 零元叁角贰分.",
+          "type": "textfield",
+          "required": false,
+          "default": ""
+        }
+      ]
+    }
+  ],
+  "keywords": [
+    "RMB",
+    "Currency",
+    "Money",
+    "Chinese Currency",
+    "Uppercase Chinese",
+    "Amount Conversion",
+    "Financial",
+    "Accounting",
+    "Raycast"
+  ]
+}
