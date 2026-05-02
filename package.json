@@ -26,7 +26,7 @@
     "Amount Conversion",
     "Financial",
     "Accounting",
-    "Raycast"
+    "Number to Chinese"
   ],
   "license": "MIT",
   "scripts": {
@@ -60,11 +60,19 @@
       "title": "Convert to RMB",
       "description": "Convert number input to uppercase Chinese RMB text.",
       "mode": "view",
+      "arguments": [
+        {
+          "name": "number",
+          "placeholder": "Enter a number",
+          "type": "text",
+          "required": false
+        }
+      ],
       "preferences": [
         {
           "name": "roundingMode",
           "title": "Rounding Mode",
-          "description": "How to handle extra decimal digits beyond the specified places.",
+          "description": "How to handle   extra decimal digits beyond the specified places.",
           "type": "dropdown",
           "required": false,
           "default": "4",

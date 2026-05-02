@@ -1,11 +1,11 @@
 import { useMemo, useState } from "react";
-import { Action, ActionPanel, getPreferenceValues, Icon, List, open } from "@raycast/api";
+import { Action, ActionPanel, getPreferenceValues, Icon, LaunchProps, List, open } from "@raycast/api";
 import { showFailureToast } from "@raycast/utils";
 import { convert2rmb, createNzh, parsePreferences, type CommandPreferences } from "./core/rmb-converter-core";
 
-export default function ConvertToRmb() {
+export default function ConvertToRmb(props: LaunchProps<{ arguments: { number?: string } }>) {
   const preferences = getPreferenceValues<CommandPreferences>();
-  const [searchText, setSearchText] = useState("");
+  const [searchText, setSearchText] = useState(props.arguments.number ?? "");
 
   const { decimalPlaces, roundingMode, moneyPrefix, yuanChar, zhengChar, moneyOptions } = useMemo(
     () => parsePreferences(preferences),
@@ -21,7 +21,7 @@ export default function ConvertToRmb() {
   );
 
   return (
-    <List searchBarPlaceholder="Enter a number" onSearchTextChange={setSearchText} throttle>
+    <List searchBarPlaceholder="Enter a number" searchText={searchText} onSearchTextChange={setSearchText} throttle>
       <List.Section title="Result">
         <List.Item
           title={parsed.state === "ok" ? parsed.rmbValue : parsed.state === "idle" ? "Enter a number" : "Invalid input"}
