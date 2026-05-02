@@ -252,7 +252,7 @@ When enabled, appends "整" when the amount stops at jiao (no fen):
 1.23 → 壹元贰角叁分
 ```
 
-> Per [Accounting Basic Work Standards](https://kjs.mof.gov.cn/gongzuotongzhi/202408/P020240801612534470745.pdf): when the amount stops at yuan or jiao, append "整" or "正"; when there is fen, do not append.
+> Per [会计基础工作规范](https://kjs.mof.gov.cn/gongzuotongzhi/202408/P020240801612534470745.pdf): when the amount stops at 元 or 角, append "整" or "正"; when there is 分, do not append.
 
 ### Use Simple Zheng
 
