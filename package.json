@@ -56,9 +56,9 @@
   },
   "commands": [
     {
-      "name": "convert-to-rmb",
-      "title": "Convert to RMB",
-      "description": "Convert number input to uppercase Chinese RMB text.",
+      "name": "convert-number-to-rmb",
+      "title": "Convert Number to RMB",
+      "description": "Convert number to uppercase Chinese RMB text.",
       "mode": "view",
       "arguments": [
         {

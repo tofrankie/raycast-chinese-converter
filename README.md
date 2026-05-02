@@ -6,7 +6,7 @@
 
 ## 🚀 快速上手
 
-在 Raycast 中找到 `Convert to RMB` 命令，接着输入数字并回车即可自动转换。
+在 Raycast 中找到 `Convert Number to RMB` 命令，接着输入数字并回车即可自动转换。
 
 ## 🌟 示例
 
@@ -25,7 +25,7 @@
 
 ## ⚙️ 更多选项
 
-在 Raycast 输入 `Convert to RMB` 并选中该命令，按 `Cmd + K` 打开操作面板，选择「Configure Command」进入命令配置页面。
+在 Raycast 输入 `Convert Number to RMB` 并选中该命令，按 `Cmd + K` 打开操作面板，选择「Configure Command」进入命令配置页面。
 
 ### Always Show Yuan / 总是显示元位
 
@@ -189,7 +189,7 @@ Convert numbers into Chinese uppercase RMB text.
 
 ## 🚀 Quick Start
 
-Find the `Convert to RMB` command in Raycast, enter a number and press Enter to convert.
+Find the `Convert Number to RMB` command in Raycast, enter a number and press Enter to convert.
 
 ## 🌟 Examples
 
@@ -208,7 +208,7 @@ Find the `Convert to RMB` command in Raycast, enter a number and press Enter to 
 
 ## ⚙️ More Options
 
-Enter `Convert to RMB` in Raycast, press `Cmd + K` to open the action panel, and select "Configure Command".
+Enter `Convert Number to RMB` in Raycast, press `Cmd + K` to open the action panel, and select "Configure Command".
 
 ### Always Show Yuan
 
