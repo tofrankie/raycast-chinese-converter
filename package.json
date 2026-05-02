@@ -35,7 +35,6 @@
     "lint": "ray lint",
     "fix-lint": "ray lint --fix",
     "publish": "ray publish",
-    "verify:nzh": "node scripts/verify-nzh.mjs",
     "test": "vitest run"
   },
   "dependencies": {
