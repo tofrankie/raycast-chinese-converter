@@ -1,69 +1,52 @@
 import { useMemo, useState } from "react";
-import Nzh from "nzh";
 import { Action, ActionPanel, getPreferenceValues, Icon, List, open } from "@raycast/api";
 import { showFailureToast } from "@raycast/utils";
-import {
-  buildResultSubtitle,
-  convertInputToRmb,
-  createNzh,
-  parseBooleanPreference,
-  parseDecimalPlaces,
-  parseMoneyPrefix,
-  parseRoundingMode,
-  type MoneyOptions,
-  type RoundingMode,
-} from "./core/rmb-converter-core";
-
-type CommandPreferences = {
-  decimalPlaces?: string;
-  roundingMode?: RoundingMode;
-  unOmitYuan?: boolean;
-  forceZheng?: boolean;
-  moneyPrefix?: string;
-};
+import { convert2rmb, createNzh, parsePreferences, type CommandPreferences } from "./core/rmb-converter-core";
 
 export default function ConvertToRmb() {
   const preferences = getPreferenceValues<CommandPreferences>();
   const [searchText, setSearchText] = useState("");
 
-  const decimalPlaces = parseDecimalPlaces(preferences.decimalPlaces);
-  const roundingMode = parseRoundingMode(preferences.roundingMode);
-  const moneyPrefix = parseMoneyPrefix(preferences.moneyPrefix);
-  const moneyOptions: MoneyOptions = {
-    unOmitYuan: parseBooleanPreference(preferences.unOmitYuan, false),
-    forceZheng: parseBooleanPreference(preferences.forceZheng, true),
-  };
+  const { decimalPlaces, roundingMode, moneyPrefix, moneyOptions } = useMemo(
+    () => parsePreferences(preferences),
+    [preferences],
+  );
 
   const nzh = useMemo(() => createNzh(moneyPrefix), [moneyPrefix]);
   const trimmedInput = searchText.trim();
 
-  const parsed = useMemo(() => {
-    return convertInputToRmb(trimmedInput, { decimalPlaces, roundingMode, moneyOptions, nzh: nzh as Nzh });
-  }, [trimmedInput, decimalPlaces, roundingMode, moneyOptions.unOmitYuan, moneyOptions.forceZheng, nzh]);
-
-  const resultTitle = parsed.status === "ok" ? parsed.value : "No result";
+  const parsed = useMemo(
+    () => convert2rmb(trimmedInput, { decimalPlaces, roundingMode, moneyOptions, nzh }),
+    [trimmedInput, decimalPlaces, roundingMode, moneyOptions.unOmitYuan, moneyOptions.forceZheng, nzh],
+  );
 
   return (
-    <List searchBarPlaceholder="Enter a number, e.g. 1000" onSearchTextChange={setSearchText} throttle>
+    <List searchBarPlaceholder="Enter a number" onSearchTextChange={setSearchText} throttle>
       <List.Section title="Result">
         <List.Item
-          title={resultTitle}
-          subtitle={buildResultSubtitle(
-            trimmedInput,
-            parsed.status,
-            parsed.status === "ok" ? parsed.normalizedInput : undefined,
-          )}
-          icon={parsed.status === "ok" ? Icon.BankNote : Icon.ExclamationMark}
+          title={parsed.state === "ok" ? parsed.rmbValue : parsed.state === "idle" ? "Enter a number" : "Invalid input"}
+          subtitle={
+            parsed.state === "ok" && parsed.roundedValue !== trimmedInput
+              ? parsed.roundedValue
+              : parsed.state === "error"
+                ? "Invalid input"
+                : undefined
+          }
+          icon={
+            parsed.state === "ok" ? Icon.BankNote : parsed.state === "error" ? Icon.ExclamationMark : Icon.TextInput
+          }
           actions={
             <ActionPanel>
-              {parsed.status === "ok" ? (
-                <Action.CopyToClipboard title="Copy Result" content={parsed.value} />
+              {parsed.state === "ok" ? (
+                <Action.CopyToClipboard title="Copy Result" content={parsed.rmbValue} />
               ) : (
                 <Action
                   title="Copy Result"
                   icon={Icon.Clipboard}
                   onAction={async () => {
-                    await showFailureToast("Please enter a valid number.", { title: "Invalid Input" });
+                    if (parsed.state === "error") {
+                      await showFailureToast(parsed.message, { title: "Invalid Input" });
+                    }
                   }}
                 />
               )}
@@ -83,7 +66,7 @@ export default function ConvertToRmb() {
 
       <List.Section title="Feedback">
         <List.Item
-          title="If conversion looks wrong or you need another feature, report an issue or contact the author."
+          title="Report an issue or contact the author"
           icon={Icon.Info}
           actions={
             <ActionPanel>

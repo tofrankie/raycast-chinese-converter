@@ -1,13 +1,14 @@
+import BigNumber from "bignumber.js";
 import { describe, expect, it } from "vitest";
 import {
-  applyDecimalPolicy,
-  buildResultSubtitle,
-  convertInputToRmb,
+  convert2rmb,
   createNzh,
   parseBooleanPreference,
   parseDecimalPlaces,
   parseMoneyPrefix,
+  parsePreferences,
   parseRoundingMode,
+  ROUNDING_MODES,
   trimTrailingDecimalZeros,
 } from "./rmb-converter-core";
 
@@ -25,10 +26,13 @@ describe("rmb-converter-core", () => {
     expect(parseDecimalPlaces("2")).toBe(2);
   });
 
-  it("parseRoundingMode should fallback to round", () => {
-    expect(parseRoundingMode("truncate")).toBe("truncate");
-    expect(parseRoundingMode("round")).toBe("round");
-    expect(parseRoundingMode(undefined)).toBe("round");
+  it("parseRoundingMode should accept all 9 bignumber.js modes", () => {
+    for (const m of ROUNDING_MODES) {
+      expect(parseRoundingMode(String(m.value))).toBe(m.value);
+    }
+    expect(parseRoundingMode(undefined)).toBe(BigNumber.ROUND_HALF_UP);
+    expect(parseRoundingMode("")).toBe(BigNumber.ROUND_HALF_UP);
+    expect(parseRoundingMode("99")).toBe(BigNumber.ROUND_HALF_UP);
   });
 
   it("parse helpers should normalize values", () => {
@@ -39,85 +43,208 @@ describe("rmb-converter-core", () => {
     expect(parseBooleanPreference(undefined, true)).toBe(true);
   });
 
-  it("trimTrailingDecimalZeros should remove trailing decimal zeros", () => {
+  it("trimTrailingDecimalZeros should remove trailing zeros after decimal point", () => {
     expect(trimTrailingDecimalZeros("1.2300")).toBe("1.23");
     expect(trimTrailingDecimalZeros("1.200")).toBe("1.2");
     expect(trimTrailingDecimalZeros("1.000")).toBe("1");
     expect(trimTrailingDecimalZeros("0.000")).toBe("0");
+    expect(trimTrailingDecimalZeros("10.020")).toBe("10.02");
+    expect(trimTrailingDecimalZeros("100.00")).toBe("100");
+    expect(trimTrailingDecimalZeros("1.00000")).toBe("1");
+    // no trailing zeros
+    expect(trimTrailingDecimalZeros("1.23")).toBe("1.23");
+    expect(trimTrailingDecimalZeros("1.001")).toBe("1.001");
+    // no decimal point
+    expect(trimTrailingDecimalZeros("100")).toBe("100");
+    // single digit after decimal
+    expect(trimTrailingDecimalZeros("1.2")).toBe("1.2");
   });
 
-  it("applyDecimalPolicy should support round and truncate then trim zeros", () => {
-    expect(applyDecimalPolicy(1.235, 2, "round")).toBe("1.24");
-    expect(applyDecimalPolicy(1.239, 2, "truncate")).toBe("1.23");
-    expect(applyDecimalPolicy(1, 2, "round")).toBe("1");
-  });
-
-  it("convertInputToRmb should follow A->B->C->toMoney flow", () => {
-    const nzh = createNzh("");
-    const res = convertInputToRmb("1.2300", {
+  it("parsePreferences should parse and normalize all preferences", () => {
+    expect(
+      parsePreferences({
+        decimalPlaces: "3",
+        roundingMode: "1",
+        unOmitYuan: true,
+        forceZheng: false,
+        moneyPrefix: "  RMB  ",
+      }),
+    ).toEqual({
+      decimalPlaces: 3,
+      roundingMode: 1,
+      moneyPrefix: "RMB",
+      moneyOptions: { unOmitYuan: true, forceZheng: false },
+    });
+    expect(parsePreferences({})).toEqual({
       decimalPlaces: 2,
-      roundingMode: "round",
+      roundingMode: 4,
+      moneyPrefix: "",
+      moneyOptions: { unOmitYuan: false, forceZheng: false },
+    });
+  });
+
+  it("convert2rmb should follow validate -> toFixed -> toMoney flow", () => {
+    const nzh = createNzh("");
+    const res = convert2rmb("1.2300", {
+      decimalPlaces: 2,
+      roundingMode: BigNumber.ROUND_HALF_UP,
       moneyOptions: { unOmitYuan: false, forceZheng: true },
       nzh,
     });
 
-    expect(res.status).toBe("ok");
-    if (res.status === "ok") {
-      expect(res.normalizedInput).toBe("1.23");
-      expect(res.value).toBe("壹元贰角叁分");
+    expect(res.state).toBe("ok");
+    if (res.state === "ok") {
+      expect(res.roundedValue).toBe("1.23");
+      expect(res.rmbValue).toBe("壹元贰角叁分");
     }
   });
 
-  it("convertInputToRmb should reject invalid and negative input", () => {
+  it("convert2rmb should reject invalid and negative input", () => {
     const nzh = createNzh("");
 
     expect(
-      convertInputToRmb("", {
+      convert2rmb("", {
         decimalPlaces: 2,
-        roundingMode: "round",
+        roundingMode: BigNumber.ROUND_HALF_UP,
         moneyOptions: { unOmitYuan: false, forceZheng: true },
         nzh,
       }),
-    ).toEqual({ status: "idle" });
+    ).toEqual({ state: "idle" });
 
     expect(
-      convertInputToRmb("abc", {
+      convert2rmb("abc", {
         decimalPlaces: 2,
-        roundingMode: "round",
+        roundingMode: BigNumber.ROUND_HALF_UP,
         moneyOptions: { unOmitYuan: false, forceZheng: true },
         nzh,
       }),
-    ).toEqual({ status: "error", message: "Input cannot be parsed as a number" });
+    ).toEqual({ state: "error", message: "Input cannot be parsed as a number" });
 
     expect(
-      convertInputToRmb("-1", {
+      convert2rmb("-1", {
         decimalPlaces: 2,
-        roundingMode: "round",
+        roundingMode: BigNumber.ROUND_HALF_UP,
         moneyOptions: { unOmitYuan: false, forceZheng: true },
         nzh,
       }),
-    ).toEqual({ status: "error", message: "Negative numbers are not supported" });
+    ).toEqual({ state: "error", message: "Negative numbers are not supported" });
   });
 
-  it("convertInputToRmb should apply moneyPrefix via m_t", () => {
+  it("convert2rmb should apply moneyPrefix via m_t", () => {
     const nzh = createNzh("人民币");
-    const res = convertInputToRmb("0.32", {
+    const res = convert2rmb("0.32", {
       decimalPlaces: 2,
-      roundingMode: "round",
+      roundingMode: BigNumber.ROUND_HALF_UP,
       moneyOptions: { unOmitYuan: true, forceZheng: true },
       nzh,
     });
 
-    expect(res.status).toBe("ok");
-    if (res.status === "ok") {
-      expect(res.value.startsWith("人民币")).toBe(true);
+    expect(res.state).toBe("ok");
+    if (res.state === "ok") {
+      expect(res.rmbValue.startsWith("人民币")).toBe(true);
     }
   });
 
-  it("buildResultSubtitle should only show normalized value when C !== A", () => {
-    expect(buildResultSubtitle("", "idle")).toBe("Enter a value to convert");
-    expect(buildResultSubtitle("abc", "error")).toBe("Invalid number or unsupported input");
-    expect(buildResultSubtitle("1.2300", "ok", "1.23")).toBe("1.23");
-    expect(buildResultSubtitle("1.23", "ok", "1.23")).toBeUndefined();
+  it("convert2rmb should use truncate (ROUND_DOWN) correctly", () => {
+    const nzh = createNzh("");
+    const res = convert2rmb("1.239", {
+      decimalPlaces: 2,
+      roundingMode: BigNumber.ROUND_DOWN,
+      moneyOptions: { unOmitYuan: false, forceZheng: true },
+      nzh,
+    });
+
+    expect(res.state).toBe("ok");
+    if (res.state === "ok") {
+      expect(res.roundedValue).toBe("1.23");
+      expect(res.rmbValue).toBe("壹元贰角叁分");
+    }
+  });
+
+  it("nzh input should have trailing decimal zeros stripped", () => {
+    const nzh = createNzh("");
+
+    // Whole yuan inputs: trailing zeros stripped → 整
+    for (const dp of [0, 1, 2, 3, 4, 5] as const) {
+      const res = convert2rmb("1", {
+        decimalPlaces: dp,
+        roundingMode: BigNumber.ROUND_HALF_UP,
+        moneyOptions: { unOmitYuan: false, forceZheng: false },
+        nzh,
+      });
+      expect(res.state).toBe("ok");
+      if (res.state === "ok") {
+        expect(res.rmbValue).toBe("壹元整");
+      }
+    }
+
+    // "1.00" same as "1"
+    const trailingZeros = convert2rmb("1.00", {
+      decimalPlaces: 2,
+      roundingMode: BigNumber.ROUND_HALF_UP,
+      moneyOptions: { unOmitYuan: false, forceZheng: false },
+      nzh,
+    });
+    expect(trailingZeros.state).toBe("ok");
+    if (trailingZeros.state === "ok") {
+      expect(trailingZeros.rmbValue).toBe("壹元整");
+    }
+
+    // Partial trailing zeros: "1.20" → "1.2" → 壹元贰角
+    const partial = convert2rmb("1.20", {
+      decimalPlaces: 2,
+      roundingMode: BigNumber.ROUND_HALF_UP,
+      moneyOptions: { unOmitYuan: false, forceZheng: false },
+      nzh,
+    });
+    expect(partial.state).toBe("ok");
+    if (partial.state === "ok") {
+      expect(partial.rmbValue).toBe("壹元贰角");
+    }
+
+    // Fractional inputs: no trailing zeros to strip
+    const cases: [number, string, string][] = [
+      [1, "1.1", "壹元壹角"],
+      [2, "1.23", "壹元贰角叁分"],
+      [3, "1.234", "壹元贰角叁分肆厘"],
+      [4, "1.2345", "壹元贰角叁分肆厘伍毫"],
+      [5, "1.23456", "壹元贰角叁分肆厘伍毫陆丝"],
+    ];
+    for (const [dp, input, expected] of cases) {
+      const res = convert2rmb(input, {
+        decimalPlaces: dp,
+        roundingMode: BigNumber.ROUND_HALF_UP,
+        moneyOptions: { unOmitYuan: false, forceZheng: false },
+        nzh,
+      });
+      expect(res.state).toBe("ok");
+      if (res.state === "ok") {
+        expect(res.rmbValue).toBe(expected);
+      }
+    }
+  });
+
+  it("README rounding mode table examples should be correct", () => {
+    const dp = 2;
+    const cases: [string, string, string][] = [
+      // [BigNumber mode constant name, input, expected output]
+      ["ROUND_HALF_UP", "1.235", "1.24"],
+      ["ROUND_HALF_UP", "1.255", "1.26"],
+      ["ROUND_DOWN", "1.235", "1.23"],
+      ["ROUND_HALF_EVEN", "1.235", "1.24"],
+      ["ROUND_HALF_EVEN", "1.245", "1.24"],
+      ["ROUND_UP", "1.235", "1.24"],
+      ["ROUND_FLOOR", "-1.235", "-1.24"],
+      ["ROUND_CEIL", "-1.235", "-1.23"],
+      ["ROUND_HALF_DOWN", "1.235", "1.23"],
+      ["ROUND_HALF_CEIL", "-1.235", "-1.23"],
+      ["ROUND_HALF_FLOOR", "-1.235", "-1.24"],
+    ];
+
+    for (const [modeName, input, expected] of cases) {
+      const mode = BigNumber[modeName as keyof typeof BigNumber] as BigNumber.RoundingMode;
+      const actual = new BigNumber(input).toFixed(dp, mode);
+      expect(actual, `${modeName}(${input})`).toBe(expected);
+    }
   });
 });
