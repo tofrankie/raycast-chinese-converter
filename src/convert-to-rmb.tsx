@@ -71,7 +71,7 @@ export default function ConvertToRmb() {
           actions={
             <ActionPanel>
               <Action.OpenInBrowser
-                title="Open Issues Page"
+                title="Report Issue"
                 url="https://github.com/tofrankie/raycast-chinese-converter/issues"
               />
               <Action

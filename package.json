@@ -126,19 +126,19 @@
           "default": false
         },
         {
-          "name": "preferSimpleZheng",
-          "title": "Use Simple Zheng",
-          "label": "使用「正」替代「整」",
-          "description": "开启后使用「正」，默认使用「整」。",
+          "name": "forceZheng",
+          "title": "Append Zheng",
+          "label": "到角位（无分）时在末尾加「整」，如壹元贰角整",
+          "description": "到角位（无分）时在末尾加「整」，如 1.2 → 壹元贰角整。",
           "type": "checkbox",
           "required": false,
           "default": false
         },
         {
-          "name": "forceZheng",
-          "title": "Append Zheng",
-          "label": "到角位（无分）时在末尾加「整」，如壹元贰角整",
-          "description": "到角位（无分）时在末尾加「整」，如 1.2 → 壹元贰角整。",
+          "name": "preferSimpleZheng",
+          "title": "Use Simple Zheng",
+          "label": "使用「正」替代「整」",
+          "description": "开启后使用「正」，默认使用「整」。",
           "type": "checkbox",
           "required": false,
           "default": false
