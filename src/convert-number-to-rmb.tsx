@@ -29,7 +29,7 @@ export default function ConvertToRmb(props: LaunchProps<{ arguments: { number?: 
             parsed.state === "ok" && parsed.roundedValue !== trimmedInput
               ? parsed.roundedValue
               : parsed.state === "error"
-                ? "Invalid input"
+                ? parsed.message
                 : undefined
           }
           icon={
