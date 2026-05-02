@@ -30,11 +30,13 @@ export type ParsedPreferences = {
   decimalPlaces: number;
   roundingMode: RoundingMode;
   moneyPrefix: string;
+  yuanChar: "元" | "圆";
   moneyOptions: MoneyOptions;
 };
 
 export type CommandPreferences = {
   roundingMode?: string;
+  preferTraditionalYuan?: boolean;
   unOmitYuan?: boolean;
   forceZheng?: boolean;
   moneyPrefix?: string;
@@ -45,6 +47,7 @@ export function parsePreferences(preferences: CommandPreferences): ParsedPrefere
     decimalPlaces: 2,
     roundingMode: parseRoundingMode(preferences.roundingMode),
     moneyPrefix: parseMoneyPrefix(preferences.moneyPrefix),
+    yuanChar: parseBooleanPreference(preferences.preferTraditionalYuan, false) ? "圆" : "元",
     moneyOptions: {
       unOmitYuan: parseBooleanPreference(preferences.unOmitYuan, false),
       forceZheng: parseBooleanPreference(preferences.forceZheng, false),
@@ -52,14 +55,14 @@ export function parsePreferences(preferences: CommandPreferences): ParsedPrefere
   };
 }
 
-export function createNzh(moneyPrefix: string) {
+export function createNzh(options: { moneyPrefix: string; yuanChar: "元" | "圆" }) {
   return new Nzh({
     ch: "零壹贰叁肆伍陆柒捌玖",
     ch_u: "个拾佰仟万亿兆京",
     ch_f: "负",
     ch_d: "点",
-    m_u: "元角分厘毫丝",
-    m_t: moneyPrefix,
+    m_u: `${options.yuanChar}角分`,
+    m_t: options.moneyPrefix,
     m_z: "整",
   });
 }

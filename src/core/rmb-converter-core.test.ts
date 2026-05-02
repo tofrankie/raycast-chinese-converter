@@ -64,6 +64,7 @@ describe("rmb-converter-core", () => {
     expect(
       parsePreferences({
         roundingMode: "1",
+        preferTraditionalYuan: true,
         unOmitYuan: true,
         forceZheng: false,
         moneyPrefix: "  RMB  ",
@@ -72,18 +73,20 @@ describe("rmb-converter-core", () => {
       decimalPlaces: 2,
       roundingMode: 1,
       moneyPrefix: "RMB",
+      yuanChar: "圆",
       moneyOptions: { unOmitYuan: true, forceZheng: false },
     });
     expect(parsePreferences({})).toEqual({
       decimalPlaces: 2,
       roundingMode: 4,
       moneyPrefix: "",
+      yuanChar: "元",
       moneyOptions: { unOmitYuan: false, forceZheng: false },
     });
   });
 
   it("convert2rmb should follow validate -> toFixed -> toMoney flow", () => {
-    const nzh = createNzh("");
+    const nzh = createNzh({ moneyPrefix: "", yuanChar: "元" });
     const res = convert2rmb("1.2300", {
       decimalPlaces: 2,
       roundingMode: BigNumber.ROUND_HALF_UP,
@@ -99,7 +102,7 @@ describe("rmb-converter-core", () => {
   });
 
   it("convert2rmb should reject invalid and negative input", () => {
-    const nzh = createNzh("");
+    const nzh = createNzh({ moneyPrefix: "", yuanChar: "元" });
 
     expect(
       convert2rmb("", {
@@ -130,7 +133,7 @@ describe("rmb-converter-core", () => {
   });
 
   it("convert2rmb should apply moneyPrefix via m_t", () => {
-    const nzh = createNzh("人民币");
+    const nzh = createNzh({ moneyPrefix: "人民币", yuanChar: "元" });
     const res = convert2rmb("0.32", {
       decimalPlaces: 2,
       roundingMode: BigNumber.ROUND_HALF_UP,
@@ -144,8 +147,23 @@ describe("rmb-converter-core", () => {
     }
   });
 
+  it("createNzh should use 圆 when yuanChar is 圆", () => {
+    const nzh = createNzh({ moneyPrefix: "", yuanChar: "圆" });
+    const res = convert2rmb("1", {
+      decimalPlaces: 2,
+      roundingMode: BigNumber.ROUND_HALF_UP,
+      moneyOptions: { unOmitYuan: false, forceZheng: false },
+      nzh,
+    });
+
+    expect(res.state).toBe("ok");
+    if (res.state === "ok") {
+      expect(res.rmbValue).toBe("壹圆整");
+    }
+  });
+
   it("convert2rmb should use truncate (ROUND_DOWN) correctly", () => {
-    const nzh = createNzh("");
+    const nzh = createNzh({ moneyPrefix: "", yuanChar: "元" });
     const res = convert2rmb("1.239", {
       decimalPlaces: 2,
       roundingMode: BigNumber.ROUND_DOWN,
@@ -161,7 +179,7 @@ describe("rmb-converter-core", () => {
   });
 
   it("nzh input should have trailing decimal zeros stripped", () => {
-    const nzh = createNzh("");
+    const nzh = createNzh({ moneyPrefix: "", yuanChar: "元" });
 
     // Whole yuan inputs: trailing zeros stripped → 整
     for (const dp of [0, 1, 2, 3, 4, 5] as const) {
@@ -205,9 +223,6 @@ describe("rmb-converter-core", () => {
     const cases: [number, string, string][] = [
       [1, "1.1", "壹元壹角"],
       [2, "1.23", "壹元贰角叁分"],
-      [3, "1.234", "壹元贰角叁分肆厘"],
-      [4, "1.2345", "壹元贰角叁分肆厘伍毫"],
-      [5, "1.23456", "壹元贰角叁分肆厘伍毫陆丝"],
     ];
     for (const [dp, input, expected] of cases) {
       const res = convert2rmb(input, {

@@ -117,6 +117,15 @@
           "default": false
         },
         {
+          "name": "preferTraditionalYuan",
+          "title": "Use Traditional Yuan",
+          "label": "使用「圆」替代「元」",
+          "description": "开启后使用「圆」，默认使用「元」。",
+          "type": "checkbox",
+          "required": false,
+          "default": false
+        },
+        {
           "name": "forceZheng",
           "title": "Append Zheng",
           "label": "到角位（无分）时在末尾加「整」，如壹元贰角整",
@@ -128,7 +137,7 @@
         {
           "name": "moneyPrefix",
           "title": "Custom Prefix",
-          "description": "For number input like 0.32 with prefix 人民币, show 人民币零元叁角贰分 instead of 零元叁角贰分.",
+          "description": "在结果前添加自定义文字，如「人民币壹元贰角叁分」。",
           "type": "textfield",
           "required": false,
           "default": ""
