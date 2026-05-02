@@ -7,12 +7,12 @@ export default function ConvertToRmb() {
   const preferences = getPreferenceValues<CommandPreferences>();
   const [searchText, setSearchText] = useState("");
 
-  const { decimalPlaces, roundingMode, moneyPrefix, yuanChar, moneyOptions } = useMemo(
+  const { decimalPlaces, roundingMode, moneyPrefix, yuanChar, zhengChar, moneyOptions } = useMemo(
     () => parsePreferences(preferences),
     [preferences],
   );
 
-  const nzh = useMemo(() => createNzh({ moneyPrefix, yuanChar }), [moneyPrefix, yuanChar]);
+  const nzh = useMemo(() => createNzh({ moneyPrefix, yuanChar, zhengChar }), [moneyPrefix, yuanChar, zhengChar]);
   const trimmedInput = searchText.trim();
 
   const parsed = useMemo(

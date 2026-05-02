@@ -65,6 +65,7 @@ describe("rmb-converter-core", () => {
       parsePreferences({
         roundingMode: "1",
         preferTraditionalYuan: true,
+        preferSimpleZheng: true,
         unOmitYuan: true,
         forceZheng: false,
         moneyPrefix: "  RMB  ",
@@ -74,6 +75,7 @@ describe("rmb-converter-core", () => {
       roundingMode: 1,
       moneyPrefix: "RMB",
       yuanChar: "圆",
+      zhengChar: "正",
       moneyOptions: { unOmitYuan: true, forceZheng: false },
     });
     expect(parsePreferences({})).toEqual({
@@ -81,12 +83,13 @@ describe("rmb-converter-core", () => {
       roundingMode: 4,
       moneyPrefix: "",
       yuanChar: "元",
+      zhengChar: "整",
       moneyOptions: { unOmitYuan: false, forceZheng: false },
     });
   });
 
   it("convert2rmb should follow validate -> toFixed -> toMoney flow", () => {
-    const nzh = createNzh({ moneyPrefix: "", yuanChar: "元" });
+    const nzh = createNzh({ moneyPrefix: "", yuanChar: "元", zhengChar: "整" });
     const res = convert2rmb("1.2300", {
       decimalPlaces: 2,
       roundingMode: BigNumber.ROUND_HALF_UP,
@@ -102,7 +105,7 @@ describe("rmb-converter-core", () => {
   });
 
   it("convert2rmb should reject invalid and negative input", () => {
-    const nzh = createNzh({ moneyPrefix: "", yuanChar: "元" });
+    const nzh = createNzh({ moneyPrefix: "", yuanChar: "元", zhengChar: "整" });
 
     expect(
       convert2rmb("", {
@@ -133,7 +136,7 @@ describe("rmb-converter-core", () => {
   });
 
   it("convert2rmb should apply moneyPrefix via m_t", () => {
-    const nzh = createNzh({ moneyPrefix: "人民币", yuanChar: "元" });
+    const nzh = createNzh({ moneyPrefix: "人民币", yuanChar: "元", zhengChar: "整" });
     const res = convert2rmb("0.32", {
       decimalPlaces: 2,
       roundingMode: BigNumber.ROUND_HALF_UP,
@@ -148,7 +151,7 @@ describe("rmb-converter-core", () => {
   });
 
   it("createNzh should use 圆 when yuanChar is 圆", () => {
-    const nzh = createNzh({ moneyPrefix: "", yuanChar: "圆" });
+    const nzh = createNzh({ moneyPrefix: "", yuanChar: "圆", zhengChar: "整" });
     const res = convert2rmb("1", {
       decimalPlaces: 2,
       roundingMode: BigNumber.ROUND_HALF_UP,
@@ -162,8 +165,23 @@ describe("rmb-converter-core", () => {
     }
   });
 
+  it("createNzh should use 正 when zhengChar is 正", () => {
+    const nzh = createNzh({ moneyPrefix: "", yuanChar: "元", zhengChar: "正" });
+    const res = convert2rmb("1", {
+      decimalPlaces: 2,
+      roundingMode: BigNumber.ROUND_HALF_UP,
+      moneyOptions: { unOmitYuan: false, forceZheng: false },
+      nzh,
+    });
+
+    expect(res.state).toBe("ok");
+    if (res.state === "ok") {
+      expect(res.rmbValue).toBe("壹元正");
+    }
+  });
+
   it("convert2rmb should use truncate (ROUND_DOWN) correctly", () => {
-    const nzh = createNzh({ moneyPrefix: "", yuanChar: "元" });
+    const nzh = createNzh({ moneyPrefix: "", yuanChar: "元", zhengChar: "整" });
     const res = convert2rmb("1.239", {
       decimalPlaces: 2,
       roundingMode: BigNumber.ROUND_DOWN,
@@ -179,7 +197,7 @@ describe("rmb-converter-core", () => {
   });
 
   it("nzh input should have trailing decimal zeros stripped", () => {
-    const nzh = createNzh({ moneyPrefix: "", yuanChar: "元" });
+    const nzh = createNzh({ moneyPrefix: "", yuanChar: "元", zhengChar: "整" });
 
     // Whole yuan inputs: trailing zeros stripped → 整
     for (const dp of [0, 1, 2, 3, 4, 5] as const) {
