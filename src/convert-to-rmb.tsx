@@ -17,7 +17,7 @@ export default function ConvertToRmb() {
 
   const parsed = useMemo(
     () => convert2rmb(trimmedInput, { decimalPlaces, roundingMode, moneyOptions, nzh }),
-    [trimmedInput, decimalPlaces, roundingMode, moneyOptions.unOmitYuan, moneyOptions.forceZheng, nzh],
+    [trimmedInput, roundingMode, moneyOptions.unOmitYuan, moneyOptions.forceZheng, nzh],
   );
 
   return (

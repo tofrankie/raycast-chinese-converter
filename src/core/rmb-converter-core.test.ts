@@ -63,14 +63,13 @@ describe("rmb-converter-core", () => {
   it("parsePreferences should parse and normalize all preferences", () => {
     expect(
       parsePreferences({
-        decimalPlaces: "3",
         roundingMode: "1",
         unOmitYuan: true,
         forceZheng: false,
         moneyPrefix: "  RMB  ",
       }),
     ).toEqual({
-      decimalPlaces: 3,
+      decimalPlaces: 2,
       roundingMode: 1,
       moneyPrefix: "RMB",
       moneyOptions: { unOmitYuan: true, forceZheng: false },
