@@ -6,7 +6,7 @@
 
 ## 🚀 快速上手
 
-在 Raycast 中找到 `Convert Number to RMB` 命令，接着输入数字并回车即可自动转换。
+在 Raycast 中输入 `Convert Number to RMB` 找到命令，回车并输入数字即可自动转换。
 
 ## 🌟 示例
 
@@ -25,7 +25,7 @@
 
 ## ⚙️ 更多选项
 
-在 Raycast 输入 `Convert Number to RMB` 并选中该命令，按 `Cmd + K` 打开操作面板，选择「Configure Command」进入命令配置页面。
+在 Raycast 输入 `Convert Number to RMB` 并选中该命令，按 `Cmd + K` 打开操作面板，选择 `Configure Command` 进入命令配置页面。
 
 ### Always Show Yuan / 总是显示元位
 
@@ -98,7 +98,7 @@
 
 默认使用四舍五入。如需其他取整方式，可从以下模式中选择：
 
-| 模式                            | 通俗说明                  |
+| 模式                            | 说明                      |
 | :------------------------------ | :------------------------ |
 | 四舍五入 / Round Half Up        | 默认。遇 5 进位           |
 | 五舍六入 / Round Half Down      | 遇 5 舍去                 |
@@ -208,7 +208,7 @@ Find the `Convert Number to RMB` command in Raycast, enter a number and press En
 
 ## ⚙️ More Options
 
-Enter `Convert Number to RMB` in Raycast, press `Cmd + K` to open the action panel, and select "Configure Command".
+Enter `Convert Number to RMB` in Raycast, press `Cmd + K` to open the action panel, and select `Configure Command`.
 
 ### Always Show Yuan
 
