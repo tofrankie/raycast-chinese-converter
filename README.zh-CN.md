@@ -27,6 +27,10 @@
 
 在 Raycast 输入 `Convert Number to RMB` 并选中该命令，按 `Cmd + K` 打开操作面板，选择 `Configure Command` 进入命令配置页面。
 
+### Auto Read Clipboard / 自动读取剪贴板
+
+开启后，如果没有通过命令参数输入数字，打开命令时会自动读取剪贴板文本并填入搜索框，然后立即转换。
+
 ### Always Show Yuan / 总是显示元位
 
 默认情况下，不足一元时省略「元」位：

@@ -27,6 +27,10 @@ Find the `Convert Number to RMB` command in Raycast, enter a number and press En
 
 Enter `Convert Number to RMB` in Raycast, press `Cmd + K` to open the action panel, and select `Configure Command`.
 
+### Auto Read Clipboard
+
+When enabled, if no number is provided through the command argument, the command reads clipboard text on launch, fills the search box, and converts it immediately.
+
 ### Always Show Yuan
 
 By default, amounts below 1 yuan omit the "元" position:
