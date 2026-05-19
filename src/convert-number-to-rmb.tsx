@@ -50,15 +50,6 @@ export default function ConvertToRmb(props: LaunchProps<{ arguments: { number?: 
                   }}
                 />
               )}
-              <Action.OpenInBrowser
-                title="Report an Issue"
-                url="https://github.com/tofrankie/raycast-chinese-converter/issues"
-              />
-              <Action
-                title="Contact Author"
-                icon={Icon.Envelope}
-                onAction={() => open("mailto:1426203851@qq.com?subject=RMB%20Converter%20Feedback")}
-              />
             </ActionPanel>
           }
         />
