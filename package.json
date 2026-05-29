@@ -2,6 +2,7 @@
   "$schema": "https://www.raycast.com/schemas/extension.json",
   "name": "chinese-converter",
   "title": "Chinese Converter",
+  "version": "1.0.0",
   "description": "Convert number input into Chinese formatted text, including uppercase RMB amount text.",
   "icon": "icon.png",
   "author": "tofrankie",
